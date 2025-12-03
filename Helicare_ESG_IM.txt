@@ -1,0 +1,196 @@
+﻿Appendix F        ESG DD Template for Investment Memos
+Company Name: FDcare (fka Helicare)
+Product/ Activity/ Solution: FDcare, a Vietnam-based healthcare startup established in July 2023, aims to provide accessible and personalized primary care services to the growing middle class in Ho Chi Minh City and in the long term other provinces in Vietnam as well. The company strategically locates its clinics in residential areas, such as apartment complexes and condominiums, to be closer to its target customers and offer convenient access to healthcare services. 
+
+
+Findings from the ESG Due Diligence
+	Risk Category (Category C/B+/B)
+
+
+Category B
+	Accessibility of grievance redress mechanism (include website link)
+
+
+Shared template, in progress at (https://fdcare.vn/giai-quyet-khieu-nai-tranh-chap) 
+
+	Sector & sub-sector
+  Healthcare
+
+
+Primary Care and Homecare Services
+	Countries of operation
+
+
+Vietnam
+	No. of Employees
+
+
+<30
+	Current risks and opportunities
+
+
+Current Risks
+* Risk of Medical Negligence & Quality Control
+   * As a provider of primary and home care services, FDcare faces inherent risks related to medical negligence, misdiagnosis, or improper treatment. This risk is elevated in decentralized clinic networks where quality control across locations can become inconsistent. 
+   * There are no formalized clinical audit processes in place to systematically review patient cases, treatment decisions, or outcomes for quality assurance purposes.
+   * As FDcare scales, the risk of clinical errors could increase, especially if recruitment standards, onboarding processes, and clinical training programs are not consistently applied.
+   * Absence of an internal medical advisory board or a clinical quality committee means there is limited formal oversight of medical standards and evolving clinical best practices.
+* Data Privacy and Cybersecurity Vulnerabilities
+   * While basic measures (e.g., patient consent forms and submission of data to public security) are in place, FDcare faces significant risks regarding digital data protection and cybersecurity. There is room for improvement as the business scales, especially regarding digital data protection and cybersecurity frameworks. 
+   * Potential breaches of patient data, including sensitive medical information, due to inadequate security protocols.
+   * Lack of robust encryption and access controls to protect patient data stored electronically.
+   * Potential for unauthorized access to patient data by employees or third parties.
+   * Lack of clarity on data security protocols.
+
+
+Current Opportunities
+*  Leverage FDcare’s online platform to enhance stakeholder feedback, ensuring all patients, caregivers, and staff have direct access to raise concerns or provide feedback.
+* FDcare mitigates medical negligence, misdiagnosis, or improper treatment risks through its advisory board, which includes senior doctors advising on medical best practices. Additionally, one of the founders, Dr. Ha Hyunh, is an experienced family physician, ensuring that management receives expert guidance on clinical standards. FDcare also has malpractise insurance in place. 
+* FDcare mitigates operational risks related to compliance with environmental and safety requirements, including water quality monitoring, fire hazard prevention, and appropriate management and disposal of medical waste by having the relevant procedures in place throughout all their clinics which is also a pre-requisite to obtain clinic permits in Vietnam. 
+* Establish a Clinical Quality Committee (including external advisors or senior medical practitioners), so FDcare can proactively build a culture of patient safety and continuous quality improvement
+* Consider implementing international clinical quality certifications (e.g., ISO 9001 for healthcare) to provide a competitive advantage when bidding for contracts, or seeking partnerships with hospitals, insurance providers, or corporate health programs.
+* Establish clear data governance policies, combined with staff training on data protection and cybersecurity best practices. Build a strong internal culture of data stewardship, reducing both human error and internal risks as the company scales.
+* Expand access to affordable medical services
+   * Opportunities exist to expand affordable service packages for underserved populations, such as low-income families or the elderly, aligning with Vietnam’s public health goals and attracting impact-focused partnerships or funding.
+   * Investing in digital clinic management systems (CMS), including integrated electronic medical records (EMR), appointment scheduling, and inventory
+   * Expand telemedicine services to follow-up consultations and chronic disease management, in order to provide more affordable and convenient care to patients, especially in provinces where physical clinics are not yet established.
+   * Expand their online preventive health education programs to offline - collaborate with local schools, employers, and community centers.  Thus strengthening FDcare’s brand and positioning itself as a trusted health partner.
+
+
+	Long-term risks and opportunities
+Long term risks
+* Scalability Risks to Medical Quality and Patient Safety
+   * As FDcare scales to multiple clinics across Vietnam, ensuring consistent quality of care will become increasingly challenging.
+   * Without a robust clinical governance system, including standardized treatment protocols, regular clinical audits, and centralized oversight of clinical decisions, the risk of medical negligence, misdiagnosis, or patient harm increases.
+   * Expansion also means hiring more doctors and nurses at scale, which brings risks around inconsistent credential verification, variations in training quality, and cultural inconsistencies across clinics.
+   * Vietnam’s regulatory oversight of private clinics is evolving but remains fragmented, meaning FDcare will need to self-regulate to some extent by establishing internal clinical governance and quality assurance frameworks.
+   * Patient dissatisfaction due to perceived or actual clinical errors could lead to reputational damage, legal action, regulatory scrutiny, and insurance claims, all of which could significantly affect financial performance.
+* Regulatory and Cybersecurity Challenges at Scale
+   * As FDcare grows into new provinces and introduces new service lines, the regulatory environment becomes more complex. Each province may have different licensing, data protection, and labor law requirements, requiring continuous monitoring and proactive compliance upgrades.
+   * At the same time, cybersecurity risks increase with scale. Expanding patient data collection, integrating telemedicine services, and digitizing clinic operations will require ongoing investment in data security systems, encryption, and access controls. The risk of large-scale data breaches exposing sensitive medical data could lead to regulatory penalties, reputational damage, and loss of patient trust. Compliance and cybersecurity enhancements will represent a significant and ongoing investment.
+* Workforce and Labor Compliance Risks
+   * As the workforce expands rapidly, there are increased risks related to labor law compliance and worker welfare (LWC). Ensuring all medical professionals meet credentialing requirements, undergo proper training, and comply with local labor laws will require formalized HR processes and oversight mechanisms. Without these in place, FDcare could face grievances, disputes, or reputational risks related to employee welfare and treatment.
+
+
+Long term opportunities
+* Build a robust clinical governance framework to ensure consistent quality of care across all clinics, including standardized treatment protocols, internal clinical audits, incident reporting processes, and regular training programs for medical staff. This will help mitigate the risk of medical errors and safeguard patient safety as FDcare scales.
+* Develop a province-level regulatory compliance playbook, ensuring that licensing, operational procedures, and labor law requirements are clearly documented and tailored to local regulations as FDcare expands to new regions. This proactive regulatory management will reduce compliance risks and support smoother expansion.
+* Formalize comprehensive employee onboarding, credential verification, and continuous professional development programs to ensure that all newly hired medical professionals meet consistent standards of care, no matter where they are hired.
+* Invest in scalable data protection systems and cybersecurity infrastructure, ensuring that patient data is securely stored, encrypted, and access-controlled across all digital platforms and telemedicine services. Demonstrating strong data governance will also enhance trust with patients, regulators, and potential partners.
+* Establish a scalable ESG and risk management framework, ensuring that policies, processes, and governance structures grow alongside the business, particularly as FDcare expands into new provinces and service lines. Embedding ESG considerations into operational decision-making will help identify and mitigate risks early.
+* Demonstrate strong ESG performance and transparent reporting to enhance FDcare’s reputation with investors, partners, and patients, positioning the company as a leader in responsible, high-quality healthcare delivery in Vietnam.
+
+
+	Founders’ commitment to and company capacity on ESG risk management
+
+
+High - FDcare’s founders are open to ESG improvements and receptive to guidance. They comply with regulatory standards and practice basic data privacy and environmental measures. Despite relying on ad hoc processes, they actively engage in community outreach and are willing to formalize ESG policies as the company scales. With targeted support, their capacity to manage ESG risks can grow alongside their operations.
+
+
+	Highlights of the relevant stakeholder consultations conducted, potential grievances, and risk of retaliation that could emerge and commitment to a stakeholder engagement plan.
+
+
+Stakeholder Consultations: FDcare engages with a variety of stakeholders:
+1. Patients and Families: FDcare provides a dispute resolution online feedback form. This feedback is used to improve service quality and address patient concerns. The form is linked from their home page as ‘Dispute Resolution’. However, due to a recent change to their webhost, the form is not loading. We will follow up on this in our action plan.
+2. Medical Professionals: FDcare consults with family medicine specialists, nurses, and other healthcare providers to ensure its services meet the highest standards of care and comply with relevant regulations.
+3. Community Partners: FDcare collaborates with preschools, property management units, and local community groups to offer health screenings and educational initiatives.
+
+
+Potential Grievances: Potential grievances may arise from various stakeholders:
+1. Patients: Dissatisfaction with the quality of care, communication issues, billing disputes, or concerns about data privacy.
+2. Caregivers: Concerns about work hours, pay, or conditions.
+3. Medical Professionals: Concerns about resources, processes, or working conditions.
+
+
+Risk of Retaliation: FDcare acknowledges that there is a potential risk of retaliation against stakeholders who raise concerns. The response lacks specific channels to promote confidence in transparency to potential and current workers.
+	Gaps in the fund’s ESG requirements and proposed action plan to address gaps
+
+
+Gaps:
+* Lack of a formal, documented ESG policy. 
+* Lack of regulatory compliance monitoring & structured reporting. 
+* Limited cybersecurity and data protection measures despite basic compliance practices.
+* Absence of a robust, formal grievance redress mechanism, including a whistleblower policy, with only informal channels in place.
+
+
+Action Plan:
+* Develop and Implement a Formal ESG Policy commensurate to Heli’s business stage, which is currently relatively early (<2 years of operations). 
+* Strengthen regulatory compliance monitoring & structured reporting.
+* Enhance cybersecurity measures and data protection protocols to meet evolving standards such as for e.g. engaging with a cybersecurity advisor/consultant and applying for relevant certificates to show high compliance such as ISO certifications. 
+* Establish a comprehensive grievance mechanism by adopting and uploading the GGV/AIIB redress template on FD’s website, plus instituting a whistleblower policy and this will be made accessible online for patients, caregivers, employees, community partners and all relevant stakeholders. 
+
+
+
+
+	Estimated cost of corrective actions and timeframe
+
+
+
+
+Client Information
+	Company Name
+	FDCare
+	Contact Person
+	hoa.pq@helicare.vn
+	Date of action plan (or update)
+	November 2025
+	
+
+
+
+Action Plan
+	#
+	Document/ Item
+	Activity
+	Responsibility
+	Deliverable
+	Deadline
+	Status / Result
+	#1
+	Develop Grievance Redress Mechanism   
+	Establish a formal GRM accessible online for patients, caregivers, employees, relevant stakeholders and community partners.
+	IT Team/CEO
+	Dispute Resolution Protocol
+	Q4 2025
+	In-Progress - GRM published/did not include AIIB PPM; requesting postponement of ESG reporting till end of year
+[a]	
+#2
+	Compliance & Governance
+	Strengthen regulatory compliance monitoring & structured reporting
+	Legal & Finance
+	Compliance reports & governance plan
+	H1 2025
+	Planning Stages
+	#3
+	Develop ESG Policy
+	Develop and Implement a Formal ESG Policy commensurate to FDcare’s stage of business which is still very early. 
+	CEO/ESG Team
+	
+
+	Q2 2025
+	Planning Stages
+	#4
+	Cybersecurity and Data Protection Policy & Training
+	Establish clear data governance policies, combined with staff training on data protection and cybersecurity best practices. Build a strong internal culture of data stewardship. 
+	CEO/CTO/IT Team
+	Secure sensitive data storage and avoid risk of cyber-threats. 
+	Q3-Q4 2025
+	Planning Stages
+	
+
+
+
+	
+
+	Limitation of ESG due diligence
+
+
+1. The current ESG due diligence relies heavily on self-reported data and informal, ad hoc processes, which may not capture all risks or operational nuances.
+2. As an early-stage healthcare company, FDcare's ESG initiatives are still evolving; hence, information regarding governance, cybersecurity, and grievance processes may be incomplete.
+
+
+	
+
+
+
+[a]@minh@goldengate.vc to check after vinnie introduces

@@ -1,0 +1,642 @@
+﻿Appendix E        ESG DD Questionnaire
+The Fund defines thresholds for the ESG DD questionnaire. Areas where an investee does not meet the Fund’s threshold require an Action Plan item. Levels below the threshold are coloured yellow, while levels above the threshold are coloured green.
+Risk Management Capacity Questionnaire
+Area
+	Definition
+	Materiality
+	Level
+	Comments
+	
+
+
+
+
+
+
+
+
+
+ESG Policy
+	
+
+Non-existent
+	
+
+	Level 0
+	
+
+	The company has no policy, but some ESG procedures in place (e.g., clearly documented employment contracts, transparent employment practices, responsible consumption of materials etc..).
+	Level 1
+	The company has policies and procedures in place meeting applicable ESG standards. sporadic communication, implementation, and review.
+	Level 2
+	Full set of ESG policies, procedures, and records, centrally maintained and routinely reviewed. Extensive awareness in company.
+	Level 3
+	
+
+
+
+
+
+
+
+ESG Risk and Opportunity Identification
+	
+
+Non-existent
+	
+
+	Level 0
+	
+
+	
+
+Basic identification and assessment of ESG risks but limited to a few activities.
+	Level 1
+	Awareness and engagement of staff in systematic identification and prioritization of ESG risks. External experts involved as required.
+	Level 2
+	Systematic, documented identification and prioritization of ESG risks, routinely reviewed and updated as
+part of a continual improvement plan. Internal and external inputs. Procedures extended to contractors, subcontractors, third parties and supply chain as relevant.
+	Level 3
+	
+
+
+
+ESG Reporting
+	
+
+Non-existent
+	
+
+	Level 0
+	
+
+	Minimal amounts of communication and ESG reporting are provided, usually or entirely initiated by the fund manager.
+	Level 1
+	
+
+
+
+
+
+	ESG reporting procedures are in place, mostly with a reactive and minimum (as opposed to comprehensive) approach.
+	
+
+	Level 2
+	
+
+	Regular ESG reporting occurs, is comprehensive in nature, evaluates past and current performance. Ad hoc reporting is provided when warranted, and with minimum delay.
+	Level 3
+	
+
+
+
+ESG
+Performance Management & Monitoring (for Cat B companies)
+	
+
+Non-existent
+	
+
+	Level 0
+	
+
+	
+
+Limited programs or activities to manage and monitor ESG risks.
+	Level 1
+	Actions/activities in place to manage and monitor ESG risks. Measurable company-wide objectives and targets. Periodic review and update.
+	Level 2
+	Routine, consistent implementation of actions/activities to proactively manage and monitor ESG risks. Significant improvements in ESG performance. Demonstrated commitment to continual improvement using annual improvement plans.
+	Level 3
+	
+
+Environment Questionnaire
+Area
+	Definition
+	Materiality
+	Level
+	Comments
+	
+
+
+
+
+
+
+
+
+
+Environmental impact
+	
+
+Non-existent
+	
+
+	Level 0
+	
+
+	The company identifies risk where its operations and value chain may pollute (e.g., pollute water, air, or land; increase waste generation; generate hazardous materials), use resources inefficiently (e.g., water, energy), or threaten biodiversity (e.g., operate in critical habitats; degrade natural habitats; introduce invasive species). The company has and complies with any and all required environmental permits or
+licenses as per national law.
+	
+
+Level 1
+	In addition to the above, the company plans to manage and mitigate risk where its operations and value chain may pollute, use resources inefficiently, or threaten biodiversity.
+	Level 2
+	In addition to the above, the company actively minimizes its environmental impact, mitigating potential pollution, resource inefficiencies, or threats to biodiversity.
+	Level 3
+	Greenhouse gas emissions
+	
+
+Non-existent
+	
+
+	Level 0
+	
+
+	
+
+
+
+
+
+	
+
+The company has identified the greenhouse gas emission intensity of its operations, and value chain to the extent possible.
+	
+
+	Level 1
+	
+
+	The company has in place procedures or policy to periodically monitor the greenhouse gas emissions of its operations, and value chain to the extent possible. It shows some commitment to the decarbonisation of its operations.
+	Level 2
+	In addition to the above, the company has a decarbonization strategy with concrete, timebound targets and periodic progress reports with Management approval. The company engages with its value chain to understand and/or educate on the topic of decarbonization.
+	Level 3
+	
+
+Social Questionnaire
+Area
+	Definition
+	Materiality
+	Level
+	Comments
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Labour Standards
+	
+
+Non-existent
+	
+
+	Level 0
+	
+
+	
+
+The company complies with local labour laws. The company intends to establish human resources policies and procedures and may have already implemented them informally.
+	Level 1
+	The company complies with local labour laws. The company has established human resources procedures, including providing all employees (including contracted workers) with relevant formal employment contracts and clear and understandable documentation related to working hours, wages, overtime and
+compensation and internal harassment procedures and grievance mechanisms are in place.
+	
+
+Level 2
+	Human resources policies and procedures appropriate to the company's size and workforce are implemented and are in line with IFC PS requirements and national and international laws and regulations. All employees (including contractors) are provided with relevant formal employment contracts. Clear and understandable documentation is provided to employees related to working hours, wages, overtime, and compensation. Collective bargaining agreements are allowed, and internal harassment procedures and
+grievance mechanisms are in place.
+	
+
+
+
+Level 3
+	Occupational Health &
+	
+
+Non-existent
+	
+
+	Level 0
+	
+
+	
+
+
+
+Safety Standards
+	
+
+Procedures are implemented that identify and mitigate potential hazards to workers, particularly those that may be life-threatening. The company is compliant with all relevant OH&S laws and regulations.
+	
+
+	Level 1
+	
+
+	OHS policies and procedures are implemented, that provide preventive and protective measures to eliminate hazardous conditions and substances. Workers are made aware of OHS hazards and their prevention, and the company documents and reports occupational accidents, diseases, and incidents to GGV and other stakeholders. The company is compliant with all relevant OH&S laws and regulations.
+	
+
+Level 2
+	OHS policies and procedures are implemented, that provide preventive and protective measures, and are aligned with the IFC's Environmental, Health and Safety Guidelines and consistent with national laws and regulations and international standards. Workers are trained on OHS hazards and their prevention, and the company documents and reports occupational accidents, diseases, and incidents to GGV and other
+stakeholders. The company is compliant with all relevant OH&S laws and regulations.
+	
+
+Level 3
+	
+
+
+
+
+
+
+
+
+
+
+
+Child and Forced Labour Policy
+	
+
+Non-existent
+	
+
+	Level 0
+	
+
+	
+
+The company has a basic policy in place to manage and establish the current or future risk of child and forced labour.
+	Level 1
+	
+
+Detailed policy in place to manage and establish the current or future risk of child and forced labour. The company has established processes for employees to identify and/ or report on child and forced labour.
+	Level 2
+	Detailed policy in place to manage and establish the current or future risk of child and forced labour. The company educates its clients on this risk and has established processes for employees to identify and/ or report on child and forced labour.
+	Level 3
+	
+
+
+
+
+
+
+
+Community Engagement and Impact
+	
+
+Non-existent
+	
+
+	Level 0
+	
+
+	The company identifies stakeholders that may be affected by its activities. It has procedures in place to identify and manage potential risks to community/stakeholder health and safety, and cultural heritage (where relevant).
+	Level 1
+	In addition to the above, the company has in place a detailed policy that is aligned to international standards (IFC PS 4). Stakeholders and potentially affected parties have been identified through meaningful consultation.
+	Level 2
+	
+
+
+
+
+
+	
+
+In addition to the above, the company educates its clients on this risk and community consultation and engagement is well documented.
+	
+
+	Level 3
+	
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Consumer Protection
+	
+
+Non-existent
+	
+
+	Level 0
+	
+
+	
+
+The company complies with relevant consumer protection laws.
+	
+
+	Level 1
+	In addition to the above, the company has basic policies in place that demonstrate the fair and respectful treatment of clients, including the design of products and services that cause no harm to consumers. The company is demonstrably committed to pricing transparency and communicates this in a timely manner. The company sets its pricing, terms, and conditions in a way to ensure its own financial and material
+sustainability.
+	
+
+	
+
+Level 2
+	The company has comprehensive policies regarding the fair and respectful treatment of clients, transparency, and responsible pricing. In addition to the above, this includes the identification of the key characteristics of clients and consumers, which is used to inform do no harm design practice. The company regularly publicly communicates its transparency policy to allow consumers to make informed decisions.
+The company demonstrably seeks to balance its own financial and material sustainability with affordable
+pricing, terms, and conditions for the consumer.
+	
+
+	
+
+
+
+Level 3
+	
+
+
+
+
+
+
+
+
+
+
+
+Supply chain risk management
+	
+
+Non-existent
+	
+
+	Level 0
+	
+
+
+
+
+
+
+
+Please list the topics subject to supply chain analysis (e.g. labour and working conditions)
+	
+
+The company engages with partners to be better informed of its supply chain and identify potential risks therein.
+	
+
+	Level 1
+	The company has carried out, and periodically updates, a supply chain risk assessment and has in place a supply chain management plan, commensurate with the risks identified.
+	
+
+	Level 2
+	In addition to the above, the company requires supply chain partners to provide representations and warranties regarding labour and working conditions. The company reserves the right to inspect and audit its supply chain partners, reserving the right to terminate contract in the event of material non-
+compliance.
+	
+
+	
+
+Level 3
+	
+
+Governance Questionnaire
+Area
+	Definition
+	Materiality
+	Level
+	Comments
+	
+
+
+
+
+
+Commitment to Corporate Governance (CG)
+	
+
+Non-existent
+	
+
+	Level 0
+	
+
+	There is a charter with basic corporate governance articles including wording on minority shareholder protection. Roles & responsibilities for the company are defined with clear decision-making and authority limits. Information is disclosed regularly.
+	Level 1
+	In addition to the above, the Board has approved a written code of CG, as well as the annual calendar of events, and CG disclosures are made to shareholders.
+	Level 2
+	In addition to the above, there is a designated CG officer, and the corporate governance is evaluated against external benchmarks of best practices and disclosed.
+	Level 3
+	
+
+
+
+
+
+
+
+Board Structure and Functioning
+	
+
+Non-existent
+	
+
+	Level 0
+	
+
+	
+
+The company has informal oversight and control processes in place.
+	Level 1
+	Board meetings are held regularly and with adequate upfront notice and information sharing. The internal control system and the audit function are in line with national standards. The Board monitors risk and compliance.
+	Level 2
+	Directors are elected regularly, a majority of whom are independent, and one of whom chairs the Audit Committee. There is a comprehensive risk management and compliance system, and the audit function is
+in line with national standards.
+	Level 3
+	
+
+
+
+
+
+
+
+Compliance with Laws & Regulations
+	
+
+Non-existent
+	
+
+	Level 0
+	
+
+	
+
+Compliance with applicable legislation and regulations.
+	Level 1
+	Monitoring and awareness of all relevant legislation and regulation, and full compliance. Occasional external audits if warranted by local law.
+	Level 2
+	Full compliance, and processes to identify and monitor relevant legislation and regulation and ensure continuous compliance. Regular external audits and compliance reports are provided to the Board.
+	Level 3
+	
+
+
+
+
+
+
+
+
+
+Anti-Bribery and Corruption (ABC)
+Management
+	
+
+Non-existent
+	
+
+	Level 0
+	
+
+	
+
+The company has anti-bribery and corruption processes in place and intends to establish a policy.
+	Level 1
+	There is an anti-bribery and corruption policy, endorsed by senior management, which mandates staff to report suspected corruption. Training is provided for select staff, and there is an anti-bribery and corruption officer who reports directly to the Board.
+	Level 2
+	The policy is communicated to all external business partners. Training is required for all employees. The policy implementation is externally audited and reviewed by the Board for the annual report.
+	Level 3
+	
+
+
+
+
+
+
+
+AML, KYC & KYB
+Management
+	
+
+Non-existent
+	
+
+	Level 0
+	
+
+	The company engages in ad-hoc Know Your Customer (KYC), Anti-Money Laundering (AML) and Know Your Business (KYB) checks. Incidents are reported to GGV.
+	Level 1
+	The company conducts regular AML, KYC & KYB checks. Staff are trained to report suspected money laundering. AML awareness training is provided for select staff. Incidents are reported to GGV.
+	Level 2
+	The company conducts regular AML, KYC & KYB checks. A designated AML officer reports results to the Board. Staff and business partners are informed about the AML, KYC & KYB practices and screened for previous convictions. AML training is mandatory for all staff and incidents are reported to GGV.
+	Level 3
+	
+
+
+
+
+
+
+
+
+
+
+
+GRM & PPM
+	
+
+Non-existent
+	
+
+	Level 0
+	
+
+	The company operates a grievance mechanism to receive and facilitate resolution of the concerns and complaints of people who believe they have been affected by the company's business activities in respect to ESG matters. This is readily accessible in relevant languages on the company's website and also includes information about and a link to the AIIB'S Project Affected People's Mechanism website.
+	
+
+Level 1
+	In addition to the above, the company's grievance mechanism has been endorsed by the company's
+Management and Board and lists multiple points of contact. If relevant, stakeholder mapping has been carried out.
+	Level 2
+	In addition to the above, the company displays its full grievance policy on its website, including the explanation of anonymity and confidentiality. The mechanism is regularly communicated to stakeholders.
+	Level 3
+	
+
+	
+
+Non-existent
+	
+
+	Level 0
+	
+
+	
+
+
+
+
+
+
+
+
+
+Cyber Security and Data Governance
+	Systems and security patches are up-to-date, and basic cyber threat and data security risk governance elements have been established.
+	
+
+	Level 1
+	
+
+	System, user, and network activity is monitored. User privileges are reviewed periodically, generic training is provided, there are security protocols to prevent data breaches, and there is an appointed person in charge of cyber and data security.
+	Level 2
+	User privileges are restricted to the necessary minimum, tailored training is provided to specific staff and needs, there are regular security reviews, and the company discloses externally it has a cyber security team.
+	Level 3
+	
+
+Track Record Questionnaire (open-ended)
+Area
+	Definition
+	Comments
+	Regulatory and legislative breaches
+	
+
+Has the company experienced any ESG-related regulatory non-compliances or litigation, including with respect to health and safety, labour, data security or environmental issues? If yes, please give details on the root causes, corrective actions, and current status.
+	
+
+	Supply chain issues
+	
+
+Has the company ever found material non-compliances with supply chain partners with respect to labour and working conditions? If yes, please give details on the root causes, corrective actions, and current status.
+	
+
+	
+
+Transparency & disclosure
+	In the last 5 years, have external auditors have issued a Qualified, Adverse or Disclaimer of Opinion on financial statements and/or made any material restatements of financial statements? If yes, please give details on the root causes, corrective actions, and current status.
+	
+
+	
+
+
+
+
+
+Renewable energy companies
+	* Considering elements such as relative size, nature, and term of the power off-take arrangements into the grid and nature of utility off-taker, is the renewable company a utility scale or small-scale/ distributed?
+* Are there identified labour and working conditions issues in the company’s supply chain?
+* Does the company possess a supply chain management plan that is commensurate with the risks identified?
+* In the contract documents with suppliers and contractors, are there representations and warranties to be provided to the company regarding labour and working conditions?
+* Does the company have the right to inspect and audit compliance its suppliers and contractors and in
+the event of non-compliance, has the right to terminate contract?
