@@ -1,43 +1,45 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { callLLMJSON } from '@/lib/llm-client';
 import { CompanyInfo } from '@/lib/types';
-
-/**
- * Enhanced error logging for API routes
- */
-function logAPIError(context: string, error: unknown, requestInfo?: Record<string, any>) {
-  const timestamp = new Date().toISOString();
-  const errorDetails = {
-    timestamp,
-    context,
-    error: error instanceof Error ? {
-      message: error.message,
-      name: error.name,
-      stack: error.stack,
-    } : { message: String(error) },
-    ...requestInfo,
-  };
-  
-  console.error(`[API ERROR ${timestamp}] ${context}:`, JSON.stringify(errorDetails, null, 2));
-  return errorDetails;
-}
+import { MAX_TEXT_LENGTH, TEXT_PREVIEW_LENGTH, MIN_BUSINESS_ACTIVITIES_LENGTH, MIN_PRODUCT_DESCRIPTION_LENGTH, API_TIMEOUT_MS } from '@/lib/constants';
+import { formatErrorResponse, ValidationError, LLMError, AuthenticationError, RateLimitError, TimeoutError } from '@/lib/errors';
+import { generateRequestId, sanitizeText } from '@/lib/utils';
+import { checkRateLimit } from '@/lib/rate-limit';
+import { withTimeout } from '@/lib/timeout';
+import { log } from '@/lib/logger';
 
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
-  const requestId = `extract-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  const requestId = generateRequestId('extract');
   
-  console.log(`[API INFO] Extract info request started: ${requestId}`);
+  log.api('Extract info request started', requestId);
+  
+  // Check rate limit
+  try {
+    checkRateLimit(request);
+  } catch (error) {
+    if (error instanceof RateLimitError) {
+      log.apiError('Rate limit exceeded', requestId);
+      return NextResponse.json(
+        formatErrorResponse(error, requestId),
+        { 
+          status: error.statusCode,
+          headers: {
+            'Retry-After': '60',
+          },
+        }
+      );
+    }
+    throw error;
+  }
   
   // Validate environment variables
   if (!process.env.OPENAI_API_KEY && !process.env.ANTHROPIC_API_KEY) {
-    const error = new Error('API key not configured');
-    logAPIError('Missing API key in extract request', error, { requestId });
+    const error = new AuthenticationError('API key not configured. Please set OPENAI_API_KEY or ANTHROPIC_API_KEY environment variable.', requestId);
+    log.apiError('Missing API key', requestId);
     return NextResponse.json(
-      { 
-        error: 'API key not configured. Please set OPENAI_API_KEY or ANTHROPIC_API_KEY environment variable.',
-        requestId,
-      },
-      { status: 500 }
+      formatErrorResponse(error, requestId),
+      { status: error.statusCode }
     );
   }
   
@@ -45,41 +47,35 @@ export async function POST(request: NextRequest) {
     const { text } = await request.json();
 
     if (!text) {
-      const error = new Error('No text provided in request body');
-      logAPIError('Missing text in extract request', error, { requestId });
+      const error = new ValidationError('No text provided in request body', undefined, requestId);
+      log.apiError('Missing text', requestId);
       return NextResponse.json(
-        { 
-          error: 'No text provided',
-          requestId,
-        },
-        { status: 400 }
+        formatErrorResponse(error, requestId),
+        { status: error.statusCode }
       );
     }
 
-    if (!text.trim()) {
-      const error = new Error('Text is empty after trimming');
-      logAPIError('Empty text in extract request', error, { 
-        requestId,
-        textLength: text.length,
-      });
+    // Sanitize and validate text
+    const sanitizedText = sanitizeText(text, MAX_TEXT_LENGTH);
+    
+    if (!sanitizedText || !sanitizedText.trim()) {
+      const error = new ValidationError('Text is empty after sanitization', { originalLength: text.length }, requestId);
+      log.apiError('Empty text after sanitization', requestId, { originalLength: text.length });
       return NextResponse.json(
-        { 
-          error: 'Text is empty after trimming',
-          requestId,
-        },
-        { status: 400 }
+        formatErrorResponse(error, requestId),
+        { status: error.statusCode }
       );
     }
 
     const textInfo = {
-      length: text.length,
-      preview: text.substring(0, 500),
-      truncated: text.length > 15000,
+      length: sanitizedText.length,
+      preview: sanitizedText.substring(0, TEXT_PREVIEW_LENGTH),
+      truncated: sanitizedText.length < text.length,
     };
     
-    console.log(`[API INFO] Extracting company info from text: ${requestId}`, textInfo);
+    log.api('Extracting company info from text', requestId, textInfo);
 
-    const textToAnalyze = text.substring(0, 20000); // Increased limit for more context
+    const textToAnalyze = sanitizedText.substring(0, MAX_TEXT_LENGTH);
     const prompt = `
 You are an expert at extracting company information from business documents. Analyze the following text COMPLETELY and extract ALL relevant company details. You must be thorough and extract every piece of available information.
 
@@ -174,13 +170,15 @@ If ANY required field is missing or empty, you MUST re-read the text and extract
     
     try {
       // Use a more robust extraction approach with retry logic
-      let companyInfo: CompanyInfo | null = null;
-      let attempts = 0;
-      const maxAttempts = 2;
-      
-      while (attempts < maxAttempts && !companyInfo) {
+      // Wrap in timeout
+      const extractionPromise = (async () => {
+        let companyInfo: CompanyInfo | null = null;
+        let attempts = 0;
+        const maxAttempts = 2;
+        
+        while (attempts < maxAttempts && !companyInfo) {
         attempts++;
-        console.log(`[API INFO] Extraction attempt ${attempts}/${maxAttempts}: ${requestId}`);
+        log.api(`Extraction attempt ${attempts}/${maxAttempts}`, requestId);
         
         try {
           companyInfo = await callLLMJSON<CompanyInfo>(
@@ -237,11 +235,11 @@ CRITICAL REQUIREMENTS - You MUST extract COMPLETE information:
             }
             
             if (validationErrors.length > 0) {
-              console.warn(`[API WARN] Validation failed on attempt ${attempts}: ${requestId}`, validationErrors);
+              log.warn(`Validation failed on attempt ${attempts}`, { requestId, validationErrors });
               
               if (attempts < maxAttempts) {
                 // Retry with more explicit instructions
-                console.log(`[API INFO] Retrying extraction with enhanced prompt: ${requestId}`);
+                log.api('Retrying extraction with enhanced prompt', requestId);
                 companyInfo = null; // Reset to retry
                 
                 // Enhance prompt for retry
@@ -262,7 +260,7 @@ You MUST extract ALL of these fields from the text. Read the text more carefully
                 throw new Error(`Extraction incomplete after ${maxAttempts} attempts. Missing fields: ${validationErrors.join(', ')}`);
               }
             } else {
-              console.log(`[API INFO] Validation passed on attempt ${attempts}: ${requestId}`);
+              log.api(`Validation passed on attempt ${attempts}`, requestId);
               break; // Success, exit retry loop
             }
           }
@@ -270,14 +268,26 @@ You MUST extract ALL of these fields from the text. Read the text more carefully
           if (attempts >= maxAttempts) {
             throw extractionError; // Re-throw if final attempt
           }
-          console.warn(`[API WARN] Extraction attempt ${attempts} failed, retrying: ${requestId}`, extractionError);
+          log.warn(`Extraction attempt ${attempts} failed, retrying`, { 
+            requestId, 
+            error: extractionError instanceof Error ? extractionError.message : String(extractionError) 
+          });
           companyInfo = null; // Reset for retry
         }
       }
       
-      if (!companyInfo) {
-        throw new Error('Failed to extract company information after all attempts');
-      }
+        if (!companyInfo) {
+          throw new Error('Failed to extract company information after all attempts');
+        }
+        
+        return companyInfo;
+      })();
+      
+      const companyInfo = await withTimeout(
+        extractionPromise,
+        API_TIMEOUT_MS,
+        'Company information extraction timed out'
+      );
 
       const extractionTime = Date.now() - startTime;
       const extractedFields = Object.keys(companyInfo).filter(key => {
@@ -287,11 +297,10 @@ You MUST extract ALL of these fields from the text. Read the text more carefully
         return !!value;
       });
       
-      console.log(`[API INFO] LLM extraction completed: ${requestId}`, {
-        extractionTime: `${extractionTime}ms`,
+      log.api('LLM extraction completed', requestId, {
+        extractionTime,
         extractedFields: extractedFields.length,
         fields: extractedFields,
-        companyInfo: JSON.stringify(companyInfo, null, 2),
       });
 
       // Final validation - all required fields must be present and valid
@@ -312,36 +321,29 @@ You MUST extract ALL of these fields from the text. Read the text more carefully
       if (!companyInfo.numberOfEmployees || companyInfo.numberOfEmployees.trim().length === 0) {
         finalValidationErrors.push('numberOfEmployees is required');
       }
-      if (!companyInfo.businessActivities || companyInfo.businessActivities.trim().length < 50) {
-        finalValidationErrors.push('businessActivities must be at least 50 characters');
+      if (!companyInfo.businessActivities || companyInfo.businessActivities.trim().length < MIN_BUSINESS_ACTIVITIES_LENGTH) {
+        finalValidationErrors.push(`businessActivities must be at least ${MIN_BUSINESS_ACTIVITIES_LENGTH} characters`);
       }
-      if (!companyInfo.productDescription || companyInfo.productDescription.trim().length < 50) {
-        finalValidationErrors.push('productDescription must be at least 50 characters');
+      if (!companyInfo.productDescription || companyInfo.productDescription.trim().length < MIN_PRODUCT_DESCRIPTION_LENGTH) {
+        finalValidationErrors.push(`productDescription must be at least ${MIN_PRODUCT_DESCRIPTION_LENGTH} characters`);
       }
       
       if (finalValidationErrors.length > 0) {
-        const error = new Error(`Extraction incomplete: ${finalValidationErrors.join(', ')}`);
-        logAPIError('Incomplete extraction result', error, {
-          requestId,
-          textInfo,
-          extractionTime,
-          extractedFields,
-          companyInfo,
-          finalValidationErrors,
-        });
+        const error = new ValidationError(
+          `Could not extract complete company information. Missing or incomplete: ${finalValidationErrors.join(', ')}. Please ensure the document contains clear company details and try again.`,
+          {
+            textLength: sanitizedText.length,
+            textPreview: sanitizedText.substring(0, TEXT_PREVIEW_LENGTH),
+            extractedFields,
+            validationErrors: finalValidationErrors,
+          },
+          requestId
+        );
+        log.apiError('Incomplete extraction result', requestId, { validationErrors: finalValidationErrors });
         
         return NextResponse.json(
-          { 
-            error: `Could not extract complete company information. Missing or incomplete: ${finalValidationErrors.join(', ')}. Please ensure the document contains clear company details and try again.`,
-            debug: {
-              textLength: text.length,
-              textPreview: text.substring(0, 500),
-              extractedFields,
-              validationErrors: finalValidationErrors,
-            },
-            requestId,
-          },
-          { status: 422 }
+          formatErrorResponse(error, requestId),
+          { status: error.statusCode }
         );
       }
 
@@ -351,35 +353,36 @@ You MUST extract ALL of these fields from the text. Read the text more carefully
       });
     } catch (llmError) {
       const extractionTime = Date.now() - startTime;
-      logAPIError('LLM extraction failed', llmError, {
-        requestId,
-        textInfo,
-        extractionTime,
-      });
+      const error = llmError instanceof LLMError || llmError instanceof TimeoutError
+        ? llmError
+        : new LLMError(
+            llmError instanceof Error ? llmError.message : 'Failed to extract information',
+            undefined,
+            { textInfo, extractionTime },
+            requestId
+          );
       
-      const errorMessage = llmError instanceof Error ? llmError.message : 'Failed to extract information';
+      log.apiError('LLM extraction failed', requestId, { error: error.message, extractionTime });
       return NextResponse.json(
-        { 
-          error: errorMessage,
-          requestId,
-        },
-        { status: 500 }
+        formatErrorResponse(error, requestId),
+        { status: error.statusCode }
       );
     }
   } catch (error) {
     const processingTime = Date.now() - startTime;
-    logAPIError('Extract info request failed', error, {
-      requestId,
-      processingTime,
-    });
+    const appError = error instanceof ValidationError || error instanceof LLMError || error instanceof AuthenticationError || error instanceof TimeoutError
+      ? error
+      : new LLMError(
+          error instanceof Error ? error.message : 'Failed to extract information',
+          undefined,
+          { processingTime },
+          requestId
+        );
     
-    const errorMessage = error instanceof Error ? error.message : 'Failed to extract information';
+    log.apiError('Extract info request failed', requestId, { error: appError.message, processingTime });
     return NextResponse.json(
-      { 
-        error: errorMessage,
-        requestId,
-      },
-      { status: 500 }
+      formatErrorResponse(appError, requestId),
+      { status: appError.statusCode }
     );
   }
 }

@@ -84,6 +84,7 @@ export default function Home() {
   const [pastedText, setPastedText] = useState<string>('');
   const [inputMethod, setInputMethod] = useState<'file' | 'text'>('file');
   const [formKey, setFormKey] = useState(0); // Force form re-render
+  const [progress, setProgress] = useState<{ message: string; percentage: number } | null>(null);
 
   // Debug: Log companyInfo changes
   useEffect(() => {
@@ -404,8 +405,30 @@ export default function Home() {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setProgress({ message: 'Initializing DDQ generation...', percentage: 10 });
 
     try {
+      // Simulate progress updates (since we can't get real-time updates from API)
+      const progressInterval = setInterval(() => {
+        setProgress(prev => {
+          if (!prev) return null;
+          const newPercentage = Math.min(prev.percentage + 5, 90);
+          let message = prev.message;
+          
+          if (newPercentage < 30) {
+            message = 'Performing web searches for company information...';
+          } else if (newPercentage < 60) {
+            message = 'Analyzing company data against ESG framework...';
+          } else if (newPercentage < 85) {
+            message = 'Generating detailed assessment...';
+          } else {
+            message = 'Finalizing DDQ assessment...';
+          }
+          
+          return { message, percentage: newPercentage };
+        });
+      }, 2000); // Update every 2 seconds
+
       const response = await fetch('/api/generate-ddq', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -415,13 +438,26 @@ export default function Home() {
         }),
       });
 
-      if (!response.ok) throw new Error('Failed to generate DDQ');
+      clearInterval(progressInterval);
+      setProgress({ message: 'Processing results...', percentage: 95 });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Failed to generate DDQ' }));
+        throw new Error(errorData.error || 'Failed to generate DDQ');
+      }
 
       const ddq = await response.json();
+      setProgress({ message: 'Complete!', percentage: 100 });
+      
+      // Small delay to show completion
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
       setDdqResult(ddq);
       setStep('ddq');
+      setProgress(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'DDQ generation failed');
+      setProgress(null);
     } finally {
       setLoading(false);
     }
@@ -432,8 +468,30 @@ export default function Home() {
 
     setLoading(true);
     setError('');
+    setProgress({ message: 'Initializing Investment Memo generation...', percentage: 10 });
 
     try {
+      // Simulate progress updates
+      const progressInterval = setInterval(() => {
+        setProgress(prev => {
+          if (!prev) return null;
+          const newPercentage = Math.min(prev.percentage + 5, 90);
+          let message = prev.message;
+          
+          if (newPercentage < 30) {
+            message = 'Analyzing DDQ results...';
+          } else if (newPercentage < 60) {
+            message = 'Identifying risks and opportunities...';
+          } else if (newPercentage < 85) {
+            message = 'Generating investment memo content...';
+          } else {
+            message = 'Finalizing investment memo...';
+          }
+          
+          return { message, percentage: newPercentage };
+        });
+      }, 2000); // Update every 2 seconds
+
       const response = await fetch('/api/generate-im', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -444,13 +502,26 @@ export default function Home() {
         }),
       });
 
-      if (!response.ok) throw new Error('Failed to generate IM');
+      clearInterval(progressInterval);
+      setProgress({ message: 'Processing results...', percentage: 95 });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Failed to generate IM' }));
+        throw new Error(errorData.error || 'Failed to generate IM');
+      }
 
       const im = await response.json();
+      setProgress({ message: 'Complete!', percentage: 100 });
+      
+      // Small delay to show completion
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
       setImResult(im);
       setStep('im');
+      setProgress(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'IM generation failed');
+      setProgress(null);
     } finally {
       setLoading(false);
     }
@@ -475,6 +546,20 @@ export default function Home() {
       a.download = 'ESG_DDQ.docx';
       a.click();
       window.URL.revokeObjectURL(url);
+      
+      // Save to localStorage if enabled
+      if (typeof window !== 'undefined') {
+        try {
+          const { saveAssessment } = await import('@/lib/storage');
+          saveAssessment({
+            companyInfo,
+            ddqResult,
+            extractedText: uploadedText,
+          });
+        } catch (e) {
+          // Storage is optional, don't fail on error
+        }
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Download failed');
     }
@@ -499,8 +584,77 @@ export default function Home() {
       a.download = 'ESG_Investment_Memo.docx';
       a.click();
       window.URL.revokeObjectURL(url);
+      
+      // Save to localStorage if enabled
+      if (typeof window !== 'undefined') {
+        try {
+          const { saveAssessment } = await import('@/lib/storage');
+          saveAssessment({
+            companyInfo,
+            ddqResult,
+            imResult,
+            extractedText: uploadedText,
+          });
+        } catch (e) {
+          // Storage is optional, don't fail on error
+        }
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Download failed');
+    }
+  };
+
+  const handleExportJSON = async () => {
+    if (!ddqResult && !imResult) return;
+    
+    try {
+      const { exportAssessmentAsJSON } = await import('@/lib/storage');
+      const assessment = {
+        id: `export-${Date.now()}`,
+        timestamp: new Date().toISOString(),
+        companyInfo,
+        ddqResult: ddqResult || undefined,
+        imResult: imResult || undefined,
+        extractedText: uploadedText || undefined,
+      };
+      
+      const json = exportAssessmentAsJSON(assessment);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `ESG_Assessment_${companyInfo.companyName || 'export'}_${Date.now()}.json`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Export failed');
+    }
+  };
+
+  const handleExportCSV = async () => {
+    if (!ddqResult && !imResult) return;
+    
+    try {
+      const { exportAssessmentAsCSV } = await import('@/lib/storage');
+      const assessment = {
+        id: `export-${Date.now()}`,
+        timestamp: new Date().toISOString(),
+        companyInfo,
+        ddqResult: ddqResult || undefined,
+        imResult: imResult || undefined,
+        extractedText: uploadedText || undefined,
+      };
+      
+      const csv = exportAssessmentAsCSV(assessment);
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `ESG_Assessment_${companyInfo.companyName || 'export'}_${Date.now()}.csv`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Export failed');
     }
   };
 
@@ -793,10 +947,29 @@ export default function Home() {
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black"
                 />
               </div>
+              {/* Progress Indicator */}
+              {progress && (
+                <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-blue-900">{progress.message}</span>
+                    <span className="text-sm text-blue-700">{progress.percentage}%</span>
+                  </div>
+                  <div className="w-full bg-blue-200 rounded-full h-2.5">
+                    <div
+                      className="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
+                      style={{ width: `${progress.percentage}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+              
               <div className="flex gap-4">
                 <button
                   type="button"
-                  onClick={() => setStep('upload')}
+                  onClick={() => {
+                    setStep('upload');
+                    setProgress(null);
+                  }}
                   className="px-4 py-2 border border-gray-300 rounded-md text-black hover:bg-gray-50"
                 >
                   Back
@@ -818,12 +991,28 @@ export default function Home() {
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-black">Step 3: DDQ Assessment</h2>
-              <button
-                onClick={handleDownloadDDQ}
-                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 font-medium"
-              >
-                Download DDQ (Word)
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleExportJSON}
+                  className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 font-medium text-sm"
+                  title="Export as JSON"
+                >
+                  Export JSON
+                </button>
+                <button
+                  onClick={handleExportCSV}
+                  className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 font-medium text-sm"
+                  title="Export as CSV"
+                >
+                  Export CSV
+                </button>
+                <button
+                  onClick={handleDownloadDDQ}
+                  className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 font-medium"
+                >
+                  Download DDQ (Word)
+                </button>
+              </div>
             </div>
             
             <div className="space-y-8 max-h-[600px] overflow-y-auto pr-2">
@@ -968,9 +1157,28 @@ export default function Home() {
               )}
             </div>
 
+            {/* Progress Indicator for IM Generation */}
+            {progress && step === 'ddq' && (
+              <div className="mt-6 mb-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-blue-900">{progress.message}</span>
+                  <span className="text-sm text-blue-700">{progress.percentage}%</span>
+                </div>
+                <div className="w-full bg-blue-200 rounded-full h-2.5">
+                  <div
+                    className="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
+                    style={{ width: `${progress.percentage}%` }}
+                  />
+                </div>
+              </div>
+            )}
+
             <div className="mt-6 flex gap-4 pt-4 border-t border-gray-200">
               <button
-                onClick={() => setStep('form')}
+                onClick={() => {
+                  setStep('form');
+                  setProgress(null);
+                }}
                 className="px-4 py-2 border border-gray-300 rounded-md text-black hover:bg-gray-50 font-medium"
               >
                 Back
@@ -991,12 +1199,28 @@ export default function Home() {
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-black">Step 4: Investment Memo</h2>
-              <button
-                onClick={handleDownloadIM}
-                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 font-medium"
-              >
-                Download IM (Word)
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleExportJSON}
+                  className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 font-medium text-sm"
+                  title="Export as JSON"
+                >
+                  Export JSON
+                </button>
+                <button
+                  onClick={handleExportCSV}
+                  className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 font-medium text-sm"
+                  title="Export as CSV"
+                >
+                  Export CSV
+                </button>
+                <button
+                  onClick={handleDownloadIM}
+                  className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 font-medium"
+                >
+                  Download IM (Word)
+                </button>
+              </div>
             </div>
             
             <div className="space-y-6 max-h-[600px] overflow-y-auto pr-2">

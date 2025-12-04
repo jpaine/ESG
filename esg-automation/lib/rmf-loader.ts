@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { log } from './logger';
 
 let cachedRMF: string | null = null;
 
@@ -37,42 +38,79 @@ export async function loadRMF(): Promise<string> {
   if (filePath) {
     try {
       cachedRMF = fs.readFileSync(filePath, 'utf-8');
+      log.info('[RMF LOADER] Successfully loaded RMF from file system', { 
+        filePath,
+        length: cachedRMF.length 
+      });
       return cachedRMF;
     } catch (error) {
-      console.warn(`[RMF LOADER] File system read failed, trying fetch fallback: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      log.warn('[RMF LOADER] File system read failed, trying fetch fallback', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        filePath,
+      });
       // Fall through to fetch-based approach
     }
   }
 
   // Fallback to fetch-based approach for Vercel production
-  // In Vercel, public files are served from the public directory
+  // In Vercel, public files are served from the public directory via CDN
   const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
   
   if (isProduction) {
-    try {
-      // Try to fetch from public URL
-      const baseUrl = process.env.VERCEL_URL 
-        ? `https://${process.env.VERCEL_URL}`
-        : process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-      
-      const response = await fetch(`${baseUrl}/ESG_RMF.txt`);
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch ESG_RMF.txt: ${response.status} ${response.statusText}`);
+    // Try multiple URL strategies for maximum reliability
+    const possibleUrls = [
+      // Use Vercel production URL if available (most reliable)
+      process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}/ESG_RMF.txt` : null,
+      // Use custom base URL if configured
+      process.env.NEXT_PUBLIC_BASE_URL ? `${process.env.NEXT_PUBLIC_BASE_URL}/ESG_RMF.txt` : null,
+      // Fallback to localhost (shouldn't happen in production, but helps with testing)
+      'http://localhost:3000/ESG_RMF.txt',
+    ].filter((url): url is string => url !== null);
+
+    for (const url of possibleUrls) {
+      try {
+        log.info('[RMF LOADER] Attempting to fetch RMF', { url });
+        
+        // Add cache control for CDN caching (Vercel CDN will cache this)
+        const response = await fetch(url, {
+          cache: 'force-cache', // Use CDN cache when available
+          next: { revalidate: 3600 }, // Revalidate every hour
+        });
+        
+        if (!response.ok) {
+          log.warn('[RMF LOADER] Fetch failed with status', { 
+            url, 
+            status: response.status,
+            statusText: response.statusText 
+          });
+          continue; // Try next URL
+        }
+        
+        cachedRMF = await response.text();
+        
+        if (!cachedRMF || cachedRMF.trim().length === 0) {
+          log.warn('[RMF LOADER] Fetched RMF is empty', { url });
+          continue; // Try next URL
+        }
+        
+        log.info('[RMF LOADER] Successfully loaded RMF via fetch', {
+          length: cachedRMF.length,
+          url,
+        });
+        return cachedRMF;
+      } catch (fetchError) {
+        log.warn('[RMF LOADER] Fetch attempt failed', {
+          error: fetchError instanceof Error ? fetchError.message : 'Unknown error',
+          url,
+        });
+        // Continue to next URL
       }
-      
-      cachedRMF = await response.text();
-      
-      if (!cachedRMF || cachedRMF.trim().length === 0) {
-        throw new Error('ESG_RMF.txt is empty');
-      }
-      
-      console.log(`[RMF LOADER] Successfully loaded RMF via fetch (${cachedRMF.length} characters)`);
-      return cachedRMF;
-    } catch (fetchError) {
-      console.error(`[RMF LOADER] Fetch-based load failed: ${fetchError instanceof Error ? fetchError.message : 'Unknown error'}`);
-      // Fall through to final error
     }
+    
+    // If all fetch attempts failed
+    log.error('[RMF LOADER] All fetch attempts failed', {
+      attemptedUrls: possibleUrls,
+    });
   }
 
   // If all methods failed, throw error

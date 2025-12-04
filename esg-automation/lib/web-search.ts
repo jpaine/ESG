@@ -1,4 +1,6 @@
 import OpenAI from 'openai';
+import { DEFAULT_OPENAI_MODEL, DEFAULT_TEMPERATURE, WEB_SEARCH_MAX_TOKENS, WEB_SEARCH_DELAY_MS } from './constants';
+import { log } from './logger';
 
 // Lazy initialization to avoid build-time errors
 let openaiInstance: OpenAI | null = null;
@@ -25,51 +27,22 @@ export interface SearchResults {
   timestamp: string;
 }
 
-/**
- * Enhanced error logging for web search
- */
-function logSearchError(context: string, error: unknown, additionalInfo?: Record<string, any>) {
-  const timestamp = new Date().toISOString();
-  const errorDetails = {
-    timestamp,
-    context,
-    error: error instanceof Error ? {
-      message: error.message,
-      name: error.name,
-      stack: error.stack,
-    } : { message: String(error) },
-    ...additionalInfo,
-  };
-  
-  console.error(`[WEB SEARCH ERROR ${timestamp}] ${context}:`, JSON.stringify(errorDetails, null, 2));
-  return errorDetails;
-}
+// Concurrency limit for parallel web searches
+const MAX_CONCURRENT_SEARCHES = 3;
 
 /**
- * Search for company ESG information using OpenAI's knowledge and reasoning
- * Uses OpenAI chat completion to search for information the model has knowledge of
- * Note: This uses OpenAI's training data knowledge. For real-time web search,
- * consider integrating SerpAPI, Google Custom Search API, or similar services.
+ * Execute a single search query
  */
-export async function searchCompanyInfo(
+async function executeSearchQuery(
   companyName: string,
-  queries: string[]
-): Promise<Map<string, SearchResults>> {
-  const results = new Map<string, SearchResults>();
-  const timestamp = new Date().toISOString();
-  
-  console.log(`[WEB SEARCH] Starting information search for company: ${companyName}`);
-  console.log(`[WEB SEARCH] Queries to execute: ${queries.length}`);
+  query: string,
+  timestamp: string
+): Promise<{ query: string; results: SearchResults }> {
+  const fullQuery = `${companyName} ${query}`;
+  log.info(`[WEB SEARCH] Searching: "${fullQuery}"`, { companyName, query });
   
   try {
-    for (const query of queries) {
-      const fullQuery = `${companyName} ${query}`;
-      console.log(`[WEB SEARCH] Searching: "${fullQuery}"`);
-      
-      try {
-        // Use OpenAI chat completion to search for information
-        // The model uses its knowledge base to find relevant information
-        const searchPrompt = `Based on your knowledge, search for information about: "${fullQuery}".
+    const searchPrompt = `Based on your knowledge, search for information about: "${fullQuery}".
 
 Provide specific, verifiable facts including:
 - Company name and context
@@ -89,82 +62,147 @@ If you find relevant information, provide details with context. If no informatio
 
 Be specific and factual. Include dates, locations, or context when available.`;
 
-                const openai = getOpenAI();
-                const response = await openai.chat.completions.create({
-          model: 'gpt-4-turbo-preview',
-          messages: [
-            {
-              role: 'system',
-              content: 'You are a research assistant that searches for and summarizes information. Provide accurate, factual information with context from your knowledge base. Cite what you find or state clearly if nothing is found. Be specific about dates, events, and sources when available.',
-            },
-            {
-              role: 'user',
-              content: searchPrompt,
-            },
-          ],
-          temperature: 0.3,
-          max_tokens: 1000,
-        });
+    const openai = getOpenAI();
+    const model = process.env.OPENAI_MODEL || DEFAULT_OPENAI_MODEL;
+    const response = await openai.chat.completions.create({
+      model,
+      messages: [
+        {
+          role: 'system',
+          content: 'You are a research assistant that searches for and summarizes information. Provide accurate, factual information with context from your knowledge base. Cite what you find or state clearly if nothing is found. Be specific about dates, events, and sources when available.',
+        },
+        {
+          role: 'user',
+          content: searchPrompt,
+        },
+      ],
+      temperature: DEFAULT_TEMPERATURE,
+      max_tokens: WEB_SEARCH_MAX_TOKENS,
+    });
 
-        const content = response.choices[0]?.message?.content || '';
-        
-        // Parse the response into structured results
-        const searchResults: SearchResult[] = [];
-        
-        if (content.toLowerCase().includes('no relevant information found') || 
-            content.toLowerCase().includes('no information found') ||
-            content.toLowerCase().includes('could not find') ||
-            content.toLowerCase().includes('not available in my knowledge')) {
-          console.log(`[WEB SEARCH] No results found for: "${fullQuery}"`);
-        } else {
-          // Extract information from the response
-          // Format as a single result with the full content as snippet
-          searchResults.push({
-            title: `Search Results: ${fullQuery}`,
-            url: 'OpenAI Knowledge Base',
-            snippet: content,
-            relevanceScore: 0.8, // Default relevance score
-          });
-          
-          console.log(`[WEB SEARCH] Found information for: "${fullQuery}" (${content.length} chars)`);
-        }
-        
-        results.set(query, {
-          query: fullQuery,
-          results: searchResults,
-          timestamp,
-        });
-        
-        // Add small delay to avoid rate limits
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-      } catch (queryError) {
-        logSearchError(`Search query failed: ${query}`, queryError, {
-          companyName,
-          query: fullQuery,
-        });
-        
-        // Continue with other queries even if one fails
-        results.set(query, {
-          query: fullQuery,
-          results: [],
-          timestamp,
-        });
-      }
+    const content = response.choices[0]?.message?.content || '';
+    
+    // Parse the response into structured results
+    const searchResults: SearchResult[] = [];
+    
+    if (content.toLowerCase().includes('no relevant information found') || 
+        content.toLowerCase().includes('no information found') ||
+        content.toLowerCase().includes('could not find') ||
+        content.toLowerCase().includes('not available in my knowledge')) {
+      log.info(`[WEB SEARCH] No results found for: "${fullQuery}"`, { companyName, query });
+    } else {
+      // Extract information from the response
+      searchResults.push({
+        title: `Search Results: ${fullQuery}`,
+        url: 'OpenAI Knowledge Base',
+        snippet: content,
+        relevanceScore: 0.8,
+      });
+      
+      log.info(`[WEB SEARCH] Found information for: "${fullQuery}"`, { 
+        companyName, 
+        query,
+        contentLength: content.length 
+      });
     }
     
+    return {
+      query,
+      results: {
+        query: fullQuery,
+        results: searchResults,
+        timestamp,
+      },
+    };
+  } catch (queryError) {
+    log.error(`[WEB SEARCH] Search query failed: ${query}`, {
+      companyName,
+      query: fullQuery,
+      error: queryError instanceof Error ? queryError.message : String(queryError),
+    });
+    
+    // Return empty results on failure
+    return {
+      query,
+      results: {
+        query: fullQuery,
+        results: [],
+        timestamp,
+      },
+    };
+  }
+}
+
+/**
+ * Process queries in parallel with concurrency limit
+ */
+async function processQueriesInParallel(
+  companyName: string,
+  queries: string[],
+  timestamp: string
+): Promise<Map<string, SearchResults>> {
+  const results = new Map<string, SearchResults>();
+  
+  // Process queries in batches with concurrency limit
+  for (let i = 0; i < queries.length; i += MAX_CONCURRENT_SEARCHES) {
+    const batch = queries.slice(i, i + MAX_CONCURRENT_SEARCHES);
+    
+    const batchPromises = batch.map(query => executeSearchQuery(companyName, query, timestamp));
+    const batchResults = await Promise.all(batchPromises);
+    
+    // Store results
+    batchResults.forEach(({ query, results: searchResults }) => {
+      results.set(query, searchResults);
+    });
+    
+    // Add delay between batches to avoid rate limits
+    if (i + MAX_CONCURRENT_SEARCHES < queries.length) {
+      await new Promise(resolve => setTimeout(resolve, WEB_SEARCH_DELAY_MS));
+    }
+  }
+  
+  return results;
+}
+
+/**
+ * Search for company ESG information using OpenAI's knowledge and reasoning
+ * Uses OpenAI chat completion to search for information the model has knowledge of
+ * Note: This uses OpenAI's training data knowledge. For real-time web search,
+ * consider integrating SerpAPI, Google Custom Search API, or similar services.
+ * 
+ * Now processes queries in parallel with concurrency limits for better performance.
+ */
+export async function searchCompanyInfo(
+  companyName: string,
+  queries: string[]
+): Promise<Map<string, SearchResults>> {
+  const timestamp = new Date().toISOString();
+  
+  log.info(`[WEB SEARCH] Starting information search for company: ${companyName}`, {
+    companyName,
+    queryCount: queries.length,
+  });
+  
+  try {
+    const results = await processQueriesInParallel(companyName, queries, timestamp);
+    
     const totalResults = Array.from(results.values()).reduce((sum, r) => sum + r.results.length, 0);
-    console.log(`[WEB SEARCH] Completed. Total results: ${totalResults} across ${results.size} queries`);
+    log.info(`[WEB SEARCH] Completed. Total results: ${totalResults} across ${results.size} queries`, {
+      companyName,
+      totalResults,
+      queryCount: results.size,
+    });
     
     return results;
-    
   } catch (error) {
-    logSearchError('Web search failed', error, {
+    log.error('[WEB SEARCH] Web search failed', {
       companyName,
       queriesCount: queries.length,
+      error: error instanceof Error ? error.message : String(error),
     });
     
     // Return empty results for all queries on failure
+    const results = new Map<string, SearchResults>();
     queries.forEach(query => {
       results.set(query, {
         query: `${companyName} ${query}`,

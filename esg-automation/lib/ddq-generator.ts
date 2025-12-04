@@ -2,6 +2,7 @@ import { callLLMJSON } from './llm-client';
 import { loadRMF } from './rmf-loader';
 import { CompanyInfo, DDQResult } from './types';
 import { searchTrackRecord, searchESGPractices, formatSearchResultsForPrompt } from './web-search';
+import { log } from './logger';
 
 /**
  * Generate DDQ assessment based on company information and RMF
@@ -12,17 +13,23 @@ export async function generateDDQ(
 ): Promise<DDQResult> {
   const rmf = await loadRMF();
   
-  console.log(`[DDQ GENERATOR] Starting DDQ generation for: ${companyInfo.companyName}`);
+  log.info('[DDQ GENERATOR] Starting DDQ generation', { companyName: companyInfo.companyName });
   
   // Perform web searches for additional information
-  console.log(`[DDQ GENERATOR] Performing web searches...`);
+  log.info('[DDQ GENERATOR] Performing web searches', { companyName: companyInfo.companyName });
   const [trackRecordResults, esgPracticeResults] = await Promise.all([
     searchTrackRecord(companyInfo.companyName).catch(err => {
-      console.error('[DDQ GENERATOR] Track record search failed:', err);
+      log.error('[DDQ GENERATOR] Track record search failed', {
+        companyName: companyInfo.companyName,
+        error: err instanceof Error ? err.message : String(err),
+      });
       return [];
     }),
     searchESGPractices(companyInfo.companyName).catch(err => {
-      console.error('[DDQ GENERATOR] ESG practices search failed:', err);
+      log.error('[DDQ GENERATOR] ESG practices search failed', {
+        companyName: companyInfo.companyName,
+        error: err instanceof Error ? err.message : String(err),
+      });
       return [];
     }),
   ]);
@@ -31,7 +38,12 @@ export async function generateDDQ(
   const allSearchResults = [...trackRecordResults, ...esgPracticeResults];
   const searchResultsText = formatSearchResultsForPrompt(allSearchResults);
   
-  console.log(`[DDQ GENERATOR] Web search completed. Found ${allSearchResults.reduce((sum, sr) => sum + sr.results.length, 0)} results`);
+  const totalResults = allSearchResults.reduce((sum, sr) => sum + sr.results.length, 0);
+  log.info('[DDQ GENERATOR] Web search completed', {
+    companyName: companyInfo.companyName,
+    totalResults,
+    queryCount: allSearchResults.length,
+  });
 
   const companyContext = `
 Company Information:
@@ -367,7 +379,7 @@ Be thorough and accurate:
 - For materiality, be generous with High ratings for multi-country, consumer-facing, or community-impact businesses
 `;
 
-  console.log(`[DDQ GENERATOR] Calling LLM for DDQ assessment...`);
+  log.info('[DDQ GENERATOR] Calling LLM for DDQ assessment', { companyName: companyInfo.companyName });
   
   const result = await callLLMJSON<DDQResult>(prompt, 
     `You are an expert ESG assessor. Analyze companies against the Golden Gate Ventures ESG Risk Management Framework and provide accurate, detailed assessments. 
@@ -381,29 +393,49 @@ CRITICAL REQUIREMENTS:
 - Use web search results to verify or enhance your assessment when available
 - Be conservative: if there's ANY evidence of basic practices, choose Level 0 over Non-existent
 
-2. MATERIALITY ASSESSMENT:
-- Be GENEROUS with High materiality for:
-  * Multi-country operations (3+ countries = High)
-  * Consumer-facing businesses (ticketing, events, direct customer interaction)
-  * Community-impact operations (events, venues, local partnerships)
-  * Environmental impact sectors (events, manufacturing, transportation)
-  * Digital platforms handling payments/data
-- Default to High when in doubt for companies with significant operations
+2. MATERIALITY ASSESSMENT - CRITICAL: Be GENEROUS with High materiality:
+- HIGH Materiality REQUIRED for:
+  * Multi-country operations (3+ countries = ALWAYS High)
+  * Consumer-facing businesses (ticketing, events, direct customer interaction = ALWAYS High)
+  * Community-impact operations (events, venues, local partnerships = ALWAYS High)
+  * Environmental impact sectors (events, manufacturing, transportation = ALWAYS High)
+  * Digital platforms handling payments/data (ALWAYS High)
+  * Operations affecting local communities (events, venues, tourism = ALWAYS High)
+  * Multi-country operations with varying regulatory environments (corruption risk = ALWAYS High)
+- MEDIUM Materiality only for:
+  * Single-country or limited geographic scope (1-2 countries)
+  * B2B operations with limited community impact
+  * Low environmental footprint
+- LOW Materiality only for:
+  * Minimal operations, very small scale
+  * No direct environmental or social impact
+  * Not applicable to business model
+- IMPORTANT: When in doubt between High and Medium, ALWAYS choose High for companies with significant operations
 
 3. COMMENT QUALITY - CRITICAL:
 - CRITICAL: When writing comments, you MUST quote directly from documents. If you cannot find a direct quote, you MUST state 'No explicit mention of [topic] in provided documents' and then explain indirect evidence clearly.
-- NEVER use inference phrases like 'it is reasonable to infer', 'suggests', 'it is assumed', 'likely', 'may indicate' - these are FORBIDDEN
+- NEVER use inference phrases like 'it is reasonable to infer', 'suggests', 'it is assumed', 'likely', 'may indicate', 'is implied' - these are FORBIDDEN
 - ALWAYS quote specific text from documents using quotation marks: "Memo states: '[exact quote]'"
 - Reference exact numbers, facts, or statements from company information
 - State what evidence exists directly: "Memo states: '[quote]'"
-- DO NOT make unsupported claims (e.g., employee counts unless stated)
+- DO NOT make unsupported claims (e.g., employee counts unless explicitly stated in documents)
 - For borderline Level 0, explain WHY with specific evidence
-- If no direct quote exists, format: "No explicit mention of [topic] in provided documents. However, [specific indirect evidence] indicates [conclusion]"`,
+- If no direct quote exists, format: "No explicit mention of [topic] in provided documents. However, [specific indirect evidence] indicates [conclusion]"
+- Examples:
+  * BAD: "It is reasonable to infer that the company has basic procedures"
+  * GOOD: "The memo states: '200+ venue options, 24+ promo/marketing, 18+ production partners', indicating engagement with supply chain partners"
+  * BAD: "Given the company's operations, it suggests compliance"
+  * GOOD: "No explicit mention of labor policies in provided documents. However, the company operates in 10 countries across Asia, which requires compliance with local labor laws in each jurisdiction, indicating Level 0 compliance"`,
     'openai'
   );
 
-  console.log(`[DDQ GENERATOR] DDQ assessment completed successfully`);
-  console.log(`[DDQ GENERATOR] Summary: ${result.riskManagement.length} risk management items, ${result.environment.length} environment items, ${result.social.length} social items, ${result.governance.length} governance items`);
+  log.info('[DDQ GENERATOR] DDQ assessment completed successfully', {
+    companyName: companyInfo.companyName,
+    riskManagementItems: result.riskManagement.length,
+    environmentItems: result.environment.length,
+    socialItems: result.social.length,
+    governanceItems: result.governance.length,
+  });
 
   return result;
 }

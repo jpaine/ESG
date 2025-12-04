@@ -1,5 +1,7 @@
 import mammoth from 'mammoth';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GEMINI_TIMEOUT_MS, DEFAULT_GEMINI_MODEL } from './constants';
+import { log } from './logger';
 
 export interface ExtractedText {
   text: string;
@@ -7,26 +9,6 @@ export interface ExtractedText {
     pages?: number;
     title?: string;
   };
-}
-
-/**
- * Enhanced error logging helper
- */
-function logError(context: string, error: unknown, additionalInfo?: Record<string, any>) {
-  const timestamp = new Date().toISOString();
-  const errorDetails = {
-    timestamp,
-    context,
-    error: error instanceof Error ? {
-      message: error.message,
-      name: error.name,
-      stack: error.stack,
-    } : { message: String(error) },
-    ...additionalInfo,
-  };
-  
-  console.error(`[ERROR ${timestamp}] ${context}:`, JSON.stringify(errorDetails, null, 2));
-  return errorDetails;
 }
 
 /**
@@ -39,13 +21,14 @@ async function extractTextWithGemini(buffer: ArrayBuffer, fileName: string): Pro
     throw new Error('GEMINI_API_KEY is not set. Cannot use Gemini API for PDF extraction.');
   }
 
-  console.log('[INFO] Starting PDF extraction with Gemini API...');
   const startTime = Date.now();
+  log.fileProcessing('Starting PDF extraction with Gemini API', fileName);
 
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
     // Use gemini-2.5-flash for multimodal support (PDFs) - faster and more cost-effective
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    const modelName = process.env.GEMINI_MODEL || DEFAULT_GEMINI_MODEL;
+    const model = genAI.getGenerativeModel({ model: modelName });
 
     // Convert ArrayBuffer to base64 for Gemini API
     const base64Pdf = Buffer.from(buffer).toString('base64');
@@ -55,7 +38,7 @@ async function extractTextWithGemini(buffer: ArrayBuffer, fileName: string): Pro
 
     // Add timeout wrapper for the API call
     const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('Gemini API call timed out after 4 minutes')), 240000); // 4 minutes
+      setTimeout(() => reject(new Error(`Gemini API call timed out after ${GEMINI_TIMEOUT_MS / 1000} seconds`)), GEMINI_TIMEOUT_MS);
     });
 
     const result = await Promise.race([
@@ -91,7 +74,10 @@ async function extractTextWithGemini(buffer: ArrayBuffer, fileName: string): Pro
     }
 
     const extractionTime = Date.now() - startTime;
-    console.log(`[INFO] Gemini API extraction successful: ${text.length} characters in ${extractionTime}ms`);
+    log.fileProcessing('Gemini API extraction successful', fileName, {
+      textLength: text.length,
+      extractionTime,
+    });
 
     return {
       text: text.trim(),
@@ -103,10 +89,9 @@ async function extractTextWithGemini(buffer: ArrayBuffer, fileName: string): Pro
     const extractionTime = Date.now() - startTime;
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     
-    logError('Gemini API extraction failed', error, {
-      fileName,
+    log.fileProcessingError('Gemini API extraction failed', fileName, {
       extractionTime,
-      errorMessage,
+      error: errorMessage,
     });
     
     // Provide helpful error messages
@@ -147,7 +132,7 @@ export async function extractTextFromFile(
     size: file.size,
   };
   
-  console.log(`[INFO] Starting text extraction for file: ${file.name} (${file.size} bytes, type: ${file.type})`);
+  log.fileProcessing('Starting text extraction', file.name, { size: file.size, type: file.type });
   
   const buffer = await file.arrayBuffer();
   const fileType = file.type;
@@ -155,7 +140,7 @@ export async function extractTextFromFile(
 
   // Handle PDF files - use Gemini API only
   if (fileType === 'application/pdf' || fileName.endsWith('.pdf')) {
-    console.log(`[INFO] Processing PDF file: ${file.name}`);
+    log.fileProcessing('Processing PDF file', file.name);
     return await extractTextWithGemini(buffer, file.name);
   }
 
@@ -164,7 +149,7 @@ export async function extractTextFromFile(
     fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
     fileName.endsWith('.docx')
   ) {
-    console.log(`[INFO] Processing Word document: ${file.name}`);
+    log.fileProcessing('Processing Word document', file.name);
     try {
       const extractStartTime = Date.now();
       const result = await mammoth.extractRawText({ buffer: Buffer.from(buffer) });
@@ -172,42 +157,49 @@ export async function extractTextFromFile(
       
       if (!result.value || !result.value.trim()) {
         const error = new Error('No text extracted from Word document');
-        logError('Word document extraction returned empty', error, { fileInfo, extractTime });
+        log.fileProcessingError('Word document extraction returned empty', file.name, { extractTime });
         throw error;
       }
       
-      console.log(`[INFO] Word document extraction successful: ${result.value.length} characters in ${extractTime}ms`);
+      log.fileProcessing('Word document extraction successful', file.name, {
+        textLength: result.value.length,
+        extractTime,
+      });
       
       return {
         text: result.value,
       };
     } catch (error) {
-      logError('Word document extraction failed', error, { fileInfo });
+      log.fileProcessingError('Word document extraction failed', file.name, {
+        error: error instanceof Error ? error.message : String(error),
+      });
       throw error;
     }
   }
 
   // Handle plain text
   if (fileType === 'text/plain' || fileName.endsWith('.txt')) {
-    console.log(`[INFO] Processing text file: ${file.name}`);
+    log.fileProcessing('Processing text file', file.name);
     try {
       const text = Buffer.from(buffer).toString('utf-8');
       
       if (!text.trim()) {
         const error = new Error('Text file is empty');
-        logError('Text file extraction returned empty', error, { fileInfo });
+        log.fileProcessingError('Text file extraction returned empty', file.name);
         throw error;
       }
       
-      console.log(`[INFO] Text file processed: ${text.length} characters`);
+      log.fileProcessing('Text file processed', file.name, { textLength: text.length });
       return { text };
     } catch (error) {
-      logError('Text file processing failed', error, { fileInfo });
+      log.fileProcessingError('Text file processing failed', file.name, {
+        error: error instanceof Error ? error.message : String(error),
+      });
       throw error;
     }
   }
 
   const error = new Error(`Unsupported file type: ${fileType}. Please upload PDF, Word (.docx), or text files.`);
-  logError('Unsupported file type', error, { fileInfo, fileType, fileName });
+  log.fileProcessingError('Unsupported file type', file.name, { fileType, fileName });
   throw error;
 }

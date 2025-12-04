@@ -99,9 +99,51 @@ Automated ESG Due Diligence Questionnaire (DDQ) and Investment Memo (IM) generat
 └── vercel.json
 ```
 
+## Testing
+
+Run tests with:
+```bash
+npm test              # Run tests once
+npm run test:watch    # Run tests in watch mode
+npm run test:coverage # Run tests with coverage report
+```
+
+Test coverage includes:
+- Utility functions (sanitization, validation)
+- Error handling utilities
+- Rate limiting logic
+
+## API Documentation
+
+See [docs/API.md](./docs/API.md) for complete API documentation including:
+- All endpoints with request/response examples
+- Error codes and handling
+- Rate limiting details
+- Best practices
+
+## Health Check
+
+Monitor system health at `/api/health`:
+```bash
+curl https://your-app.vercel.app/api/health
+```
+
+Returns system status, API key availability, metrics summary, and feature flags.
+
+## Feature Flags
+
+Control features via environment variables:
+- `ENABLE_WEB_SEARCH` - Enable/disable web search (default: true)
+- `ENABLE_PROGRESS_INDICATORS` - Show progress bars (default: true)
+- `ENABLE_METRICS` - Collect metrics (default: true)
+- `ENABLE_RATE_LIMITING` - Apply rate limits (default: true)
+- `LLM_PROVIDER` - Choose LLM provider: `openai`, `anthropic`, or `auto` (default: auto)
+- `MAX_RETRY_ATTEMPTS` - Maximum retry attempts for LLM calls (default: 3)
+
 ## Notes
 
 - The ESG_RMF.txt file is included in full in LLM prompts (no RAG/vector DB needed)
 - The system uses direct LLM API calls (no agent framework needed)
 - All processing happens server-side via API routes
 - Documents are generated as Word (.docx) files
+- RMF file is cached in memory and fetched from CDN in production for optimal performance
