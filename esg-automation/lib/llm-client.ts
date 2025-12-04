@@ -118,7 +118,7 @@ async function callLLMOnce(
     };
     
       if (!result.content) {
-        logger.warn('OpenAI API returned empty content', 'LLM', {
+        log.llm('OpenAI API returned empty content', 'openai', {
           responseId: response.id,
           choices: response.choices.length,
           finishReason: response.choices[0]?.finish_reason,
