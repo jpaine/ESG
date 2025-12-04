@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     if (error instanceof RateLimitError) {
       const duration = Date.now() - startTime;
       if (isFeatureEnabled('enableMetrics')) {
-        recordAPIError('/api/generate-ddq', requestId, error.statusCode, error.code, duration);
+        recordAPIError('/api/generate-ddq', requestId, error.statusCode, error.code || 'RATE_LIMIT_EXCEEDED', duration);
       }
       log.apiError('Rate limit exceeded', requestId);
       return NextResponse.json(
@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
     
     // Record error
     if (isFeatureEnabled('enableMetrics')) {
-      recordAPIError('/api/generate-ddq', requestId, appError.statusCode, appError.code, processingTime);
+      recordAPIError('/api/generate-ddq', requestId, appError.statusCode, appError.code || 'LLM_ERROR', processingTime);
     }
     
     log.apiError('DDQ generation failed', requestId, { error: appError.message, processingTime });
