@@ -163,17 +163,17 @@ export function exportAssessmentAsCSV(assessment: StoredAssessment): string {
   
   // DDQ Results (if available)
   if (assessment.ddqResult) {
-    rows.push('DDQ Risk Management Items,' + assessment.ddqResult.riskManagement?.length || 0);
-    rows.push('DDQ Environment Items,' + assessment.ddqResult.environment?.length || 0);
-    rows.push('DDQ Social Items,' + assessment.ddqResult.social?.length || 0);
-    rows.push('DDQ Governance Items,' + assessment.ddqResult.governance?.length || 0);
+    rows.push('DDQ Risk Management Items,' + String(assessment.ddqResult.riskManagement?.length || 0));
+    rows.push('DDQ Environment Items,' + String(assessment.ddqResult.environment?.length || 0));
+    rows.push('DDQ Social Items,' + String(assessment.ddqResult.social?.length || 0));
+    rows.push('DDQ Governance Items,' + String(assessment.ddqResult.governance?.length || 0));
   }
   
   // IM Results (if available)
   if (assessment.imResult) {
     rows.push(`IM Risk Category,"${assessment.imResult.riskCategory || ''}"`);
-    rows.push(`IM Gaps Count,${assessment.imResult.gaps?.length || 0}`);
-    rows.push(`IM Action Plan Items,${assessment.imResult.actionPlan?.length || 0}`);
+    rows.push(`IM Gaps Count,${String(assessment.imResult.gaps?.length || 0)}`);
+    rows.push(`IM Action Plan Items,${String(assessment.imResult.actionPlan?.length || 0)}`);
   }
   
   rows.push(`Timestamp,"${assessment.timestamp}"`);
